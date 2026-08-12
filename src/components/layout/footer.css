@@ -1,0 +1,12 @@
+.footer {
+	border-top: 1px solid hsl(var(--border));
+	padding: 1rem 1.5rem;
+	margin-top: auto;
+	text-align: center;
+}
+
+.copyright {
+	margin: 0;
+	font-size: 0.75rem;
+	color: hsl(var(--muted-foreground));
+}

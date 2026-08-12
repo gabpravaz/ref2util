@@ -1,0 +1,51 @@
+.navigation {
+	border-bottom: 1px solid hsl(var(--border));
+}
+
+.nav-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	height: 100%;
+}
+
+.nav-item {
+	display: flex;
+	align-items: stretch;
+	flex: 1;
+	border-right: 1px solid hsl(var(--border));
+}
+
+.nav-item:last-child {
+	border-right: none;
+}
+
+.nav-button {
+	flex: 1;
+	padding: 1rem 0.5rem;
+	background: transparent;
+	border: none;
+	color: hsl(var(--muted-foreground));
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	position: relative;
+}
+
+.nav-button:hover {
+	color: hsl(var(--foreground));
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-button.active {
+	color: hsl(var(--foreground));
+	font-weight: 600;
+	border-bottom: 2px solid hsl(var(--primary));
+	margin-bottom: -1px;
+}
