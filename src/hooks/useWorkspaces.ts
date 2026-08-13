@@ -20,7 +20,14 @@ export function useWorkspaces() {
 	useEffect(() => {
 		const loadWorkspaces = async () => {
 			try {
-				const allWorkspaces = await getAllWorkspaces();
+				let allWorkspaces = await getAllWorkspaces();
+
+				// If no workspaces exist, create a default one
+				if (allWorkspaces.length === 0) {
+					await dbCreateWorkspace("default");
+					allWorkspaces = await getAllWorkspaces();
+				}
+
 				setWorkspaces(allWorkspaces);
 
 				const active = await getActiveWorkspace();
