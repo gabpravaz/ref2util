@@ -1,3 +1,4 @@
+import type { JSX } from "preact";
 import { Search } from "lucide-react";
 import "./header.css";
 
