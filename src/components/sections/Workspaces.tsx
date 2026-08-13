@@ -40,9 +40,7 @@ export function Workspaces(): JSX.Element {
 									</h3>
 									<p className="text-sm text-muted-foreground">
 										debug: {workspace.name} was created on{" "}
-										{workspace.createdAt instanceof Date
-											? workspace.createdAt.toLocaleString()
-											: new Date(workspace.createdAt).toLocaleString()}
+										{new Date(workspace.createdAt).toLocaleString()}
 									</p>
 								</div>
 								{workspace.isActive && (

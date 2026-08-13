@@ -3,7 +3,7 @@ import Dexie, { type Table } from "dexie";
 export interface Workspace {
 	id?: number;
 	name: string;
-	createdAt: Date;
+	createdAt: number; // timestamp in milliseconds
 	isActive: boolean;
 }
 
@@ -43,7 +43,7 @@ export async function createWorkspace(name: string): Promise<number> {
 	const allWorkspaces = await db.workspaces.toArray();
 	const id = await db.workspaces.add({
 		name,
-		createdAt: new Date(),
+		createdAt: Date.now(),
 		isActive: allWorkspaces.length === 0, // First workspace is active by default
 	});
 
