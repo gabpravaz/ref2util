@@ -51,16 +51,10 @@ export async function createWorkspace(name: string): Promise<number> {
 }
 
 export async function setActiveWorkspace(workspaceId: number): Promise<void> {
-	// Deactivate all workspaces
-	const allWorkspaces = await db.workspaces.toArray();
-	for (const workspace of allWorkspaces) {
-		if (workspace.id) {
-			await db.workspaces.update(workspace.id, { isActive: false });
-		}
-	}
-
-	// Activate the selected workspace
-	await db.workspaces.update(workspaceId, { isActive: true });
+	// Deactivate all workspaces and activate the selected one using bulk modification
+	await db.workspaces.toCollection().modify((workspace) => {
+		workspace.isActive = workspace.id === workspaceId;
+	});
 }
 
 export async function renameWorkspace(

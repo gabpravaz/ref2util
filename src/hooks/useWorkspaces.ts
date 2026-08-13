@@ -29,7 +29,9 @@ export function useWorkspaces() {
 				// If no active workspace and there are workspaces, make the first one active
 				if (!active && allWorkspaces.length > 0 && allWorkspaces[0].id) {
 					await dbSetActiveWorkspace(allWorkspaces[0].id);
-					setActiveWorkspace(allWorkspaces[0]);
+					// Fetch the updated workspace to ensure isActive is true
+					const updatedActive = await getActiveWorkspace();
+					setActiveWorkspace(updatedActive);
 				}
 			} catch (error) {
 				console.error("Error loading workspaces:", error);
