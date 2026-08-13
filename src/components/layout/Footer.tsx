@@ -1,3 +1,4 @@
+import type { JSX } from "preact";
 import "./footer.css";
 
 export function Footer(): JSX.Element {

@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import type { JSX } from "preact";
 import "./header.css";
 
 export function Header(): JSX.Element {
@@ -11,11 +12,7 @@ export function Header(): JSX.Element {
 			<div className="header-center">
 				<div className="search-bar">
 					<Search className="search-icon" size={20} />
-					<input
-						type="text"
-						placeholder="Search..."
-						className="search-input"
-					/>
+					<input type="text" placeholder="Search..." className="search-input" />
 				</div>
 			</div>
 
