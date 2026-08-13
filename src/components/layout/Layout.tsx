@@ -1,14 +1,13 @@
-import { useState } from "preact/hooks";
 import type { JSX } from "preact";
+import { useState } from "preact/hooks";
+import { AudioTrim } from "../sections/AudioTrim";
+import { CharacterSheet } from "../sections/CharacterSheet";
+import { References } from "../sections/References";
+import { VideoEndFrame } from "../sections/VideoEndFrame";
+import { Workflows } from "../sections/Workflows";
+import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { Navigation } from "./Navigation";
-import { Footer } from "./Footer";
-import { Workflows } from "../sections/Workflows";
-import { References } from "../sections/References";
-import { CharacterSheet } from "../sections/CharacterSheet";
-import { VideoEndFrame } from "../sections/VideoEndFrame";
-import { AudioTrim } from "../sections/AudioTrim";
-import "./layout.css";
 
 const SECTIONS = {
 	workflows: Workflows,
@@ -24,10 +23,13 @@ export function Layout(): JSX.Element {
 	const SectionComponent = SECTIONS[activeSection as keyof typeof SECTIONS];
 
 	return (
-		<div className="layout">
+		<div className="flex flex-col h-screen w-full">
 			<Header />
-			<Navigation onNavChange={setActiveSection} activeSection={activeSection} />
-			<main className="content">
+			<Navigation
+				onNavChange={setActiveSection}
+				activeSection={activeSection}
+			/>
+			<main className="flex-1 overflow-y-auto px-6 py-8">
 				{SectionComponent && <SectionComponent />}
 			</main>
 			<Footer />
