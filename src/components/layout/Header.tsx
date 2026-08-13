@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import type { JSX } from "preact";
+import { WorkspaceSelector } from "./WorkspaceSelector";
 
 export function Header(): JSX.Element {
 	return (
@@ -21,7 +22,9 @@ export function Header(): JSX.Element {
 				</div>
 			</div>
 
-			<div className="flex-shrink-0 min-w-[150px]" />
+			<div className="flex-shrink-0 min-w-[150px] flex justify-end">
+				<WorkspaceSelector />
+			</div>
 		</header>
 	);
 }
