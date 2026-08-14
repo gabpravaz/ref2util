@@ -3,14 +3,25 @@ import { useWorkspaceContext } from "../context/WorkspaceContext";
 import "./section.css";
 
 export function Workspaces(): JSX.Element {
-	const { workspaces, loading } = useWorkspaceContext();
+	const { activeWorkspace, loading } = useWorkspaceContext();
 
 	if (loading) {
 		return (
 			<div className="section">
 				<h2 className="section-title">Workspaces</h2>
 				<div className="section-placeholder">
-					<p>Loading workspaces...</p>
+					<p>Loading workspace...</p>
+				</div>
+			</div>
+		);
+	}
+
+	if (!activeWorkspace) {
+		return (
+			<div className="section">
+				<h2 className="section-title">Workspaces</h2>
+				<div className="section-placeholder">
+					<p>No active workspace</p>
 				</div>
 			</div>
 		);
@@ -19,40 +30,24 @@ export function Workspaces(): JSX.Element {
 	return (
 		<div className="section">
 			<h2 className="section-title">Workspaces</h2>
-			{workspaces.length === 0 ? (
-				<div className="section-placeholder">
-					<p>No workspaces yet</p>
-					<p className="placeholder-subtitle">
-						Create a workspace to get started
-					</p>
-				</div>
-			) : (
-				<div className="space-y-4">
-					{workspaces.map((workspace) => (
-						<div
-							key={workspace.id}
-							className="p-4 border border-border rounded-lg bg-muted/30"
-						>
-							<div className="flex items-center justify-between">
-								<div>
-									<h3 className="text-lg font-semibold text-foreground">
-										{workspace.name}
-									</h3>
-									<p className="text-sm text-muted-foreground">
-										debug: {workspace.name} was created on{" "}
-										{new Date(workspace.createdAt).toLocaleString()}
-									</p>
-								</div>
-								{workspace.isActive && (
-									<span className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-medium">
-										Active
-									</span>
-								)}
-							</div>
+			<div className="space-y-4">
+				<div className="p-4 border border-border rounded-lg bg-muted/30">
+					<div className="flex items-center justify-between">
+						<div>
+							<h3 className="text-lg font-semibold text-foreground">
+								{activeWorkspace.name}
+							</h3>
+							<p className="text-sm text-muted-foreground">
+								debug: {activeWorkspace.name} was created on{" "}
+								{new Date(activeWorkspace.createdAt).toLocaleString()}
+							</p>
 						</div>
-					))}
+						<span className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-xs font-medium">
+							Active
+						</span>
+					</div>
 				</div>
-			)}
+			</div>
 		</div>
 	);
 }

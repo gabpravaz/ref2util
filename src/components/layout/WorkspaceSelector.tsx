@@ -106,7 +106,7 @@ export function WorkspaceSelector(): JSX.Element {
 											</button>
 
 											{openMenuId === workspace.id && workspace.id && (
-												<div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-lg shadow-lg z-50">
+												<div className="absolute right-0 top-full mt-1 w-40 bg-background border border-border rounded-lg shadow-lg z-50">
 													<button
 														onClick={() =>
 															handleRenameClick(
@@ -114,7 +114,7 @@ export function WorkspaceSelector(): JSX.Element {
 																workspace.name,
 															)
 														}
-														className="block w-full text-left px-4 py-2 text-foreground hover:bg-muted/50 border-b border-border"
+														className="block w-full text-left px-3 py-1.5 text-sm text-foreground hover:bg-muted/50 border-b border-border"
 													>
 														Rename
 													</button>
@@ -125,7 +125,7 @@ export function WorkspaceSelector(): JSX.Element {
 																workspace.name,
 															)
 														}
-														className="block w-full text-left px-4 py-2 text-destructive hover:bg-muted/50"
+														className="block w-full text-left px-3 py-1.5 text-sm text-destructive hover:bg-muted/50"
 													>
 														Delete
 													</button>
