@@ -63,7 +63,7 @@ export function WorkspaceSelector(): JSX.Element {
 				</button>
 
 				{isDropdownOpen && (
-					<div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-40">
+					<div className="absolute right-0 mt-2 w-56 bg-background border border-border rounded-lg shadow-lg z-40 flex flex-col">
 						<div className="max-h-64 overflow-y-auto">
 							{workspaces.length === 0 ? (
 								<div className="p-4 text-center text-muted-foreground">
@@ -90,7 +90,7 @@ export function WorkspaceSelector(): JSX.Element {
 											)}
 										</button>
 
-										<div className="relative">
+										<div className="relative z-50">
 											<button
 												onClick={(e) => {
 													e.stopPropagation();
