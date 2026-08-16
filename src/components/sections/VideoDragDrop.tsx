@@ -30,7 +30,6 @@ export function VideoDragDrop({
 		if (disabled) return;
 		e.preventDefault();
 		e.stopPropagation();
-		setIsDragging(true);
 	};
 
 	const handleDragEnter = (e: DragEvent): void => {

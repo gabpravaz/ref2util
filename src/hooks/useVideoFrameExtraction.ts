@@ -6,7 +6,6 @@ export interface UseVideoFrameExtractionState {
 	frames: ExtractedFrame[];
 	isLoading: boolean;
 	error: string | null;
-	isProcessing: boolean;
 }
 
 export interface UseVideoFrameExtractionReturn
@@ -69,7 +68,6 @@ export function useVideoFrameExtraction(): UseVideoFrameExtractionReturn {
 		frames,
 		isLoading,
 		error,
-		isProcessing: isLoading,
 		extractFrames,
 		clearFrames,
 		clearError,

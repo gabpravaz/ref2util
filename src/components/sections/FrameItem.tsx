@@ -14,10 +14,23 @@ export function FrameItem({ frame, index }: FrameItemProps): JSX.Element {
 		if (e.dataTransfer && imgRef.current) {
 			e.dataTransfer.effectAllowed = "copy";
 			e.dataTransfer.setData("text/uri-list", frame.dataUrl);
-			// Set a custom drag image
+
+			// Create and append drag image to DOM for proper rendering
 			const dragImage = new Image();
 			dragImage.src = frame.dataUrl;
+			dragImage.style.position = "fixed";
+			dragImage.style.top = "-9999px";
+			dragImage.style.opacity = "0";
+			document.body.appendChild(dragImage);
+
 			e.dataTransfer.setDragImage(dragImage, 48, 48);
+
+			// Clean up after drag ends
+			const handleDragEnd = (): void => {
+				document.body.removeChild(dragImage);
+				window.removeEventListener("dragend", handleDragEnd);
+			};
+			window.addEventListener("dragend", handleDragEnd);
 		}
 	};
 
