@@ -21,7 +21,7 @@ export function WorkflowItem({
 	onDragEnd,
 }: WorkflowItemProps): JSX.Element {
 	const formattedDate = new Date(workflow.createdAt).toLocaleDateString(
-		"en-US",
+		undefined,
 		{
 			month: "short",
 			day: "numeric",

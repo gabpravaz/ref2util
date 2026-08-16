@@ -22,7 +22,7 @@ export function WorkflowsList({
 	const dropZoneRef = useRef<HTMLDivElement>(null);
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [draggedItem, setDraggedItem] = useState<string | null>(null);
-	const [importError, setImportError] = useState<string | null>(null);
+	const [actionError, setActionError] = useState<string | null>(null);
 
 	const handleDragOver = (e: DragEvent) => {
 		e.preventDefault();
@@ -33,7 +33,7 @@ export function WorkflowsList({
 	const handleDragLeave = (e: DragEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-		if (e.target === dropZoneRef.current) {
+		if (!dropZoneRef.current?.contains(e.relatedTarget as Node)) {
 			setIsDragOver(false);
 		}
 	};
@@ -42,7 +42,7 @@ export function WorkflowsList({
 		e.preventDefault();
 		e.stopPropagation();
 		setIsDragOver(false);
-		setImportError(null);
+		setActionError(null);
 
 		const files = e.dataTransfer?.files;
 		if (!files) return;
@@ -50,7 +50,7 @@ export function WorkflowsList({
 		for (const file of Array.from(files)) {
 			// Only accept JSON files
 			if (!file.name.endsWith(".json")) {
-				setImportError(
+				setActionError(
 					`Skipped non-JSON file: ${file.name}. Only .json files are supported.`,
 				);
 				continue;
@@ -69,19 +69,19 @@ export function WorkflowsList({
 					error instanceof Error
 						? error.message
 						: `Failed to import ${file.name}`;
-				setImportError(`Error importing ${file.name}: ${message}`);
+				setActionError(`Error importing ${file.name}: ${message}`);
 			}
 		}
 	};
 
 	const handleDeleteWorkflow = async (name: string) => {
 		try {
-			setImportError(null);
+			setActionError(null);
 			await onDelete(name);
 		} catch (error) {
 			const message =
 				error instanceof Error ? error.message : "Failed to delete workflow";
-			setImportError(message);
+			setActionError(message);
 		}
 	};
 
@@ -113,9 +113,9 @@ export function WorkflowsList({
 				</div>
 			)}
 
-			{importError && (
+			{actionError && (
 				<div className="workflows-import-error">
-					<p>{importError}</p>
+					<p>{actionError}</p>
 				</div>
 			)}
 
