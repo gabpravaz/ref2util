@@ -26,12 +26,13 @@ export function FrameItem({ frame, index }: FrameItemProps): JSX.Element {
 			className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-border bg-muted cursor-grab active:cursor-grabbing transition-transform hover:scale-105"
 			draggable={true}
 			onDragStart={handleDragStart}
-			title={`Frame ${index + 1} - ${(frame.timestamp || 0).toFixed(2)}s`}
+			role="img"
+			aria-label={`Video frame ${index + 1} - ${(frame.timestamp || 0).toFixed(2)}s`}
 		>
 			<img
 				ref={imgRef}
 				src={frame.dataUrl}
-				alt={`Video frame ${index + 1}`}
+				alt=""
 				className="w-full h-full object-cover"
 			/>
 			<div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-2 py-0.5 rounded">

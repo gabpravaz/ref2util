@@ -1,9 +1,9 @@
 import type { JSX } from "preact";
+import { AlertCircle } from "lucide-react";
 import { useVideoFrameExtraction } from "@/hooks/useVideoFrameExtraction";
 import { VideoDragDrop } from "./VideoDragDrop";
 import { FrameItem } from "./FrameItem";
 import { FrameSkeleton } from "./FrameSkeleton";
-import { AlertCircle } from "lucide-react";
 import "./section.css";
 import "./videoEndFrame.css";
 
@@ -35,6 +35,7 @@ export function VideoEndFrame(): JSX.Element {
 						</h3>
 						<p className="text-sm text-destructive/80 mt-1">{error}</p>
 						<button
+							type="button"
 							onClick={clearError}
 							className="text-xs mt-2 px-3 py-1 bg-destructive/20 hover:bg-destructive/30 text-destructive rounded transition-colors"
 						>
@@ -66,6 +67,7 @@ export function VideoEndFrame(): JSX.Element {
 							Extracted Frames
 						</h3>
 						<button
+							type="button"
 							onClick={clearFrames}
 							className="text-xs px-3 py-1 bg-muted hover:bg-muted-foreground/20 text-muted-foreground rounded transition-colors"
 						>

@@ -13,7 +13,7 @@ export interface ExtractedFrame {
  * Processes the video by seeking to specific timestamps and capturing frames via canvas.
  */
 export async function extractLast4Frames(
-	videoFile: File
+	videoFile: File,
 ): Promise<ExtractedFrame[]> {
 	const videoUrl = URL.createObjectURL(videoFile);
 
@@ -45,17 +45,13 @@ export async function extractLast4Frames(
 		}
 
 		// Calculate timestamps for the last 4 frames
-		// We'll sample from the end of the video
+		// Sample from the last 20% of the video for better frame variety
 		const frameCount = 4;
 		const timestamps: number[] = [];
 
-		// Get 4 frames evenly distributed in the last quarter of the video
-		// Or from throughout the video if it's very short
-		const sampleStartTime = Math.max(0, duration * 0.5);
-		const sampleEndTime = Math.max(
-			duration * 0.999,
-			sampleStartTime + 0.1
-		);
+		// Start sampling from 80% of the video onwards
+		const sampleStartTime = Math.max(0, duration * 0.8);
+		const sampleEndTime = Math.max(duration * 0.9999, sampleStartTime + 0.1);
 		const timeDelta = (sampleEndTime - sampleStartTime) / (frameCount - 1);
 
 		for (let i = 0; i < frameCount; i++) {
@@ -81,7 +77,7 @@ export async function extractLast4Frames(
  */
 async function captureFrameAtTime(
 	video: HTMLVideoElement,
-	timestamp: number
+	timestamp: number,
 ): Promise<ExtractedFrame> {
 	return new Promise<ExtractedFrame>((resolve, reject) => {
 		// Set the current time to seek to the frame
@@ -111,9 +107,7 @@ async function captureFrameAtTime(
 				resolve({ dataUrl, timestamp });
 			} catch (error) {
 				reject(
-					error instanceof Error
-						? error
-						: new Error("Failed to capture frame")
+					error instanceof Error ? error : new Error("Failed to capture frame"),
 				);
 			}
 		};

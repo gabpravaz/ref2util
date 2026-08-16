@@ -1,4 +1,4 @@
-import { useState, useCallback } from "preact/hooks";
+import { useCallback, useState } from "preact/hooks";
 import type { ExtractedFrame } from "@/lib/frameExtractor";
 import { extractLast4Frames } from "@/lib/frameExtractor";
 

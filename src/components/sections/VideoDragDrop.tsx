@@ -1,6 +1,6 @@
+import { Upload } from "lucide-react";
 import type { JSX } from "preact";
 import { useRef, useState } from "preact/hooks";
-import { Upload } from "lucide-react";
 
 interface VideoDragDropProps {
 	onFileSelect: (file: File) => void;
@@ -13,6 +13,7 @@ export function VideoDragDrop({
 }: VideoDragDropProps): JSX.Element {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
+	const dragCounterRef = useRef(0);
 
 	const handleFileSelect = (files: FileList | null): void => {
 		if (!files || files.length === 0) return;
@@ -32,17 +33,29 @@ export function VideoDragDrop({
 		setIsDragging(true);
 	};
 
+	const handleDragEnter = (e: DragEvent): void => {
+		if (disabled) return;
+		e.preventDefault();
+		e.stopPropagation();
+		dragCounterRef.current++;
+		setIsDragging(true);
+	};
+
 	const handleDragLeave = (e: DragEvent): void => {
 		if (disabled) return;
 		e.preventDefault();
 		e.stopPropagation();
-		setIsDragging(false);
+		dragCounterRef.current--;
+		if (dragCounterRef.current === 0) {
+			setIsDragging(false);
+		}
 	};
 
 	const handleDrop = (e: DragEvent): void => {
 		if (disabled) return;
 		e.preventDefault();
 		e.stopPropagation();
+		dragCounterRef.current = 0;
 		setIsDragging(false);
 		handleFileSelect(e.dataTransfer?.files || null);
 	};
@@ -53,17 +66,28 @@ export function VideoDragDrop({
 		}
 	};
 
+	const handleKeyDown = (e: KeyboardEvent): void => {
+		if (!disabled && (e.key === "Enter" || e.key === " ")) {
+			e.preventDefault();
+			handleClick();
+		}
+	};
+
 	return (
 		<div>
-			<div
+			<button
+				type="button"
+				disabled={disabled}
 				onDragOver={handleDragOver}
+				onDragEnter={handleDragEnter}
 				onDragLeave={handleDragLeave}
 				onDrop={handleDrop}
 				onClick={handleClick}
+				onKeyDown={handleKeyDown}
 				className={`
 					relative flex flex-col items-center justify-center
 					p-8 border-2 border-dashed rounded-lg
-					transition-all duration-200
+					transition-all duration-200 w-full
 					${
 						isDragging
 							? "drag-over"
@@ -80,16 +104,16 @@ export function VideoDragDrop({
 				<p className="text-xs text-muted-foreground mt-1">
 					or click to browse
 				</p>
-				<input
-					ref={inputRef}
-					type="file"
-					accept="video/*"
-					onChange={handleInputChange}
-					disabled={disabled}
-					className="hidden"
-					aria-label="Upload video file"
-				/>
-			</div>
+			</button>
+			<input
+				ref={inputRef}
+				type="file"
+				accept="video/*"
+				onChange={handleInputChange}
+				disabled={disabled}
+				className="hidden"
+				aria-label="Upload video file"
+			/>
 		</div>
 	);
 }
