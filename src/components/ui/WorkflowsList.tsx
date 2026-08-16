@@ -1,0 +1,159 @@
+import type { JSX } from "preact";
+import { useRef, useState } from "preact/hooks";
+import type { Workflow } from "@/lib/db/workflowDb";
+import { WorkflowItem } from "./WorkflowItem";
+import "./workflows-list.css";
+
+interface WorkflowsListProps {
+	workflows: Workflow[];
+	onImport: (name: string, content: string) => Promise<void>;
+	onDelete: (name: string) => Promise<void>;
+	loading?: boolean;
+	error?: string | null;
+}
+
+export function WorkflowsList({
+	workflows,
+	onImport,
+	onDelete,
+	loading = false,
+	error = null,
+}: WorkflowsListProps): JSX.Element {
+	const dropZoneRef = useRef<HTMLDivElement>(null);
+	const [isDragOver, setIsDragOver] = useState(false);
+	const [draggedItem, setDraggedItem] = useState<string | null>(null);
+	const [importError, setImportError] = useState<string | null>(null);
+
+	const handleDragOver = (e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		setIsDragOver(true);
+	};
+
+	const handleDragLeave = (e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (e.target === dropZoneRef.current) {
+			setIsDragOver(false);
+		}
+	};
+
+	const handleDrop = async (e: DragEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		setIsDragOver(false);
+		setImportError(null);
+
+		const files = e.dataTransfer?.files;
+		if (!files) return;
+
+		for (const file of Array.from(files)) {
+			// Only accept JSON files
+			if (!file.name.endsWith(".json")) {
+				setImportError(
+					`Skipped non-JSON file: ${file.name}. Only .json files are supported.`,
+				);
+				continue;
+			}
+
+			try {
+				const content = await file.text();
+				// Validate that it's valid JSON
+				JSON.parse(content);
+
+				// Use the filename without extension as the workflow name
+				const workflowName = file.name.replace(/\.json$/, "");
+				await onImport(workflowName, content);
+			} catch (error) {
+				const message =
+					error instanceof Error
+						? error.message
+						: `Failed to import ${file.name}`;
+				setImportError(`Error importing ${file.name}: ${message}`);
+			}
+		}
+	};
+
+	const handleDeleteWorkflow = async (name: string) => {
+		try {
+			setImportError(null);
+			await onDelete(name);
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Failed to delete workflow";
+			setImportError(message);
+		}
+	};
+
+	const handleDragStart = (workflowName: string) => (e: DragEvent) => {
+		setDraggedItem(workflowName);
+
+		const workflow = workflows.find((w) => w.name === workflowName);
+		if (workflow && e.dataTransfer) {
+			// Set the drag data
+			e.dataTransfer.effectAllowed = "copy";
+			e.dataTransfer.setData("application/json", workflow.content);
+			e.dataTransfer.setData("text/plain", `${workflowName}.json`);
+
+			// Note: Exporting workflows via native drag-and-drop has limitations.
+			// The File System Access API or similar would be needed for seamless
+			// file download on drop. This is marked for future enhancement.
+		}
+	};
+
+	const handleDragEnd = () => {
+		setDraggedItem(null);
+	};
+
+	return (
+		<div className="workflows-list-container">
+			{error && (
+				<div className="workflows-error-banner">
+					<p>Error loading workflows: {error}</p>
+				</div>
+			)}
+
+			{importError && (
+				<div className="workflows-import-error">
+					<p>{importError}</p>
+				</div>
+			)}
+
+			<section
+				ref={dropZoneRef}
+				className={`workflows-drop-zone ${isDragOver ? "drag-over" : ""}`}
+				onDragOver={handleDragOver}
+				onDragLeave={handleDragLeave}
+				onDrop={handleDrop}
+				aria-label="Workflows drop zone"
+			>
+				{loading ? (
+					<div className="workflows-loading">
+						<p>Loading workflows...</p>
+					</div>
+				) : workflows.length === 0 ? (
+					<div className="workflows-empty">
+						<p className="workflows-empty-title">No workflows yet</p>
+						<p className="workflows-empty-subtitle">
+							Drag and drop JSON workflow files here to get started
+						</p>
+					</div>
+				) : (
+					<div className="workflows-grid">
+						{workflows.map((workflow) => (
+							<WorkflowItem
+								key={workflow.name}
+								workflow={workflow}
+								isDragging={draggedItem === workflow.name}
+								onDelete={handleDeleteWorkflow}
+								draggable={true}
+								onDragStart={handleDragStart(workflow.name)}
+								onDragEnd={handleDragEnd}
+							/>
+						))}
+					</div>
+				)}
+			</section>
+		</div>
+	);
+}

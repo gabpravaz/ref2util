@@ -1,0 +1,82 @@
+.workflows-list-container {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.workflows-error-banner {
+	padding: 1rem;
+	background-color: hsl(var(--destructive) / 0.1);
+	border: 1px solid hsl(var(--destructive));
+	border-radius: 0.5rem;
+	color: hsl(var(--destructive-foreground));
+}
+
+.workflows-error-banner p {
+	margin: 0;
+	font-weight: 500;
+}
+
+.workflows-import-error {
+	padding: 1rem;
+	background-color: hsl(var(--destructive) / 0.1);
+	border: 1px solid hsl(var(--destructive));
+	border-radius: 0.5rem;
+	color: hsl(var(--destructive-foreground));
+}
+
+.workflows-import-error p {
+	margin: 0;
+	font-size: 0.875rem;
+}
+
+.workflows-drop-zone {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 2rem;
+	background-color: hsl(var(--muted) / 0.5);
+	border: 2px dashed hsl(var(--border));
+	border-radius: 0.5rem;
+	transition: all 0.2s ease-in-out;
+	min-height: 300px;
+}
+
+.workflows-drop-zone.drag-over {
+	background-color: hsl(var(--accent) / 0.1);
+	border-color: hsl(var(--accent));
+	border-style: solid;
+	box-shadow: 0 0 0 3px hsl(var(--accent) / 0.1);
+}
+
+.workflows-loading,
+.workflows-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	min-height: 300px;
+	text-align: center;
+}
+
+.workflows-empty-title {
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: hsl(var(--foreground));
+	margin: 0;
+}
+
+.workflows-empty-subtitle {
+	font-size: 0.875rem;
+	color: hsl(var(--muted-foreground));
+	margin: 0.5rem 0 0 0;
+	max-width: 300px;
+}
+
+.workflows-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
