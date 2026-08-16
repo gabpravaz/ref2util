@@ -1,8 +1,11 @@
-import { Search } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 import type { JSX } from "preact";
+import { useThemeContext } from "../context/ThemeContext";
 import { WorkspaceSelector } from "./WorkspaceSelector";
 
 export function Header(): JSX.Element {
+	const { theme, toggleTheme } = useThemeContext();
+
 	return (
 		<header className="flex items-center justify-between gap-8 px-6 py-3 border-b border-border">
 			<div className="flex-shrink-0 min-w-[150px]">
@@ -22,7 +25,25 @@ export function Header(): JSX.Element {
 				</div>
 			</div>
 
-			<div className="flex-shrink-0 min-w-[150px] flex justify-end">
+			<div className="flex-shrink-0 min-w-[150px] flex justify-end items-center gap-4">
+				<button
+					onClick={toggleTheme}
+					className="p-2 rounded-lg hover:bg-muted transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+					aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+					title={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+				>
+					{theme === "light" ? (
+						<Moon
+							size={20}
+							className="text-foreground"
+						/>
+					) : (
+						<Sun
+							size={20}
+							className="text-foreground"
+						/>
+					)}
+				</button>
 				<WorkspaceSelector />
 			</div>
 		</header>
