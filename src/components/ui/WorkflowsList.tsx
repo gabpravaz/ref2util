@@ -98,16 +98,20 @@ export function WorkflowsList({
 			});
 			const filename = `${workflowName}.json`;
 
+			// Always provide text-based MIME types for compatibility with applications
+			// that consume JSON/text data directly
+			e.dataTransfer.setData("application/json", workflow.content);
+			e.dataTransfer.setData("text/plain", filename);
+
 			// Try to use the modern DataTransferItem API for file drag-and-drop
 			// This allows dragging the file to file systems, email clients, etc.
+			// in browsers that support it. Applications that don't support File objects
+			// will fall back to the text MIME types set above.
 			try {
 				const file = new File([blob], filename, { type: "application/json" });
 				e.dataTransfer.items.add(file);
 			} catch (_error) {
-				// Fallback for browsers that don't support File constructor or items.add()
-				// Provide the JSON content and filename for other applications
-				e.dataTransfer.setData("application/json", workflow.content);
-				e.dataTransfer.setData("text/plain", filename);
+				// Ignored: browsers without DataTransferItem support will use text data instead
 			}
 		}
 	};
