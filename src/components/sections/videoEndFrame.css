@@ -1,0 +1,19 @@
+.drag-over {
+	border-color: hsl(var(--color-primary));
+	background-color: hsla(var(--color-primary), 0.05);
+}
+
+/* Ensure the skeleton animation works smoothly */
+@keyframes pulse-smooth {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.animate-pulse-smooth {
+	animation: pulse-smooth 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
