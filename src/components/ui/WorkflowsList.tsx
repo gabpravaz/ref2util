@@ -90,14 +90,25 @@ export function WorkflowsList({
 
 		const workflow = workflows.find((w) => w.name === workflowName);
 		if (workflow && e.dataTransfer) {
-			// Set the drag data
 			e.dataTransfer.effectAllowed = "copy";
-			e.dataTransfer.setData("application/json", workflow.content);
-			e.dataTransfer.setData("text/plain", `${workflowName}.json`);
 
-			// Note: Exporting workflows via native drag-and-drop has limitations.
-			// The File System Access API or similar would be needed for seamless
-			// file download on drop. This is marked for future enhancement.
+			// Create a File object from the JSON content for proper file export
+			const blob = new Blob([workflow.content], {
+				type: "application/json",
+			});
+			const filename = `${workflowName}.json`;
+
+			// Try to use the modern DataTransferItem API for file drag-and-drop
+			// This allows dragging the file to file systems, email clients, etc.
+			try {
+				const file = new File([blob], filename, { type: "application/json" });
+				e.dataTransfer.items.add(file);
+			} catch (_error) {
+				// Fallback for browsers that don't support File constructor or items.add()
+				// Provide the JSON content and filename for other applications
+				e.dataTransfer.setData("application/json", workflow.content);
+				e.dataTransfer.setData("text/plain", filename);
+			}
 		}
 	};
 
