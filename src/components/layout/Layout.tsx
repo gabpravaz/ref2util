@@ -5,7 +5,6 @@ import { CharacterSheet } from "../sections/CharacterSheet";
 import { References } from "../sections/References";
 import { VideoEndFrame } from "../sections/VideoEndFrame";
 import { Workflows } from "../sections/Workflows";
-import { Workspaces } from "../sections/Workspaces";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 import { Navigation } from "./Navigation";
@@ -21,7 +20,6 @@ const SECTIONS = {
 	"character-sheet": CharacterSheet,
 	"video-end-frame": VideoEndFrame,
 	"audio-trim": AudioTrim,
-	workspaces: Workspaces,
 };
 
 function LayoutContent(): JSX.Element {

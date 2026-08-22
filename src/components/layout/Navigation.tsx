@@ -12,7 +12,6 @@ const NAV_ITEMS: NavItem[] = [
 	{ id: "character-sheet", label: "Character Sheet" },
 	{ id: "video-end-frame", label: "Video End Frame" },
 	{ id: "audio-trim", label: "Audio Trim" },
-	{ id: "workspaces", label: "Workspaces" },
 ];
 
 const navButtonVariants = cva(
