@@ -101,7 +101,7 @@ export function WorkflowsList({
 			// Always provide text-based MIME types for compatibility with applications
 			// that consume JSON/text data directly
 			e.dataTransfer.setData("application/json", workflow.content);
-			e.dataTransfer.setData("text/plain", filename);
+			e.dataTransfer.setData("text/plain", workflow.content);
 
 			// Try to use the modern DataTransferItem API for file drag-and-drop
 			// This allows dragging the file to file systems, email clients, etc.
