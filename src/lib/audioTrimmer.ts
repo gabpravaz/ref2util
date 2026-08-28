@@ -53,17 +53,21 @@ export function generateWaveformData(
 	samplesPerPixel: number = 512,
 ): WaveformData {
 	const rawData = audioBuffer.getChannelData(0); // Get mono data or first channel
-	const blockSize = Math.floor(rawData.length / samplesPerPixel);
+	const peakCount = Math.min(samplesPerPixel, rawData.length);
+	const blockSize = Math.max(1, Math.floor(rawData.length / Math.max(1, peakCount)));
 	const peaks: number[] = [];
 
-	for (let i = 0; i < samplesPerPixel; i++) {
+	for (let i = 0; i < peakCount; i++) {
 		let sumSquares = 0;
-		for (let j = 0; j < blockSize; j++) {
-			const sample = rawData[i * blockSize + j];
+		const start = i * blockSize;
+		const end = Math.min(start + blockSize, rawData.length);
+		for (let j = start; j < end; j++) {
+			const sample = rawData[j];
 			sumSquares += sample * sample;
 		}
+		const sampleCount = end - start;
 		// RMS (root mean square) represents the amplitude
-		peaks.push(Math.sqrt(sumSquares / blockSize));
+		peaks.push(sampleCount > 0 ? Math.sqrt(sumSquares / sampleCount) : 0);
 	}
 
 	return {
