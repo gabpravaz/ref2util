@@ -95,7 +95,8 @@ export function useAudioTrim(): UseAudioTrimReturn {
 		(time: number): void => {
 			const minGap = 0.1; // Minimum 100ms gap between start and end
 			const maxTime = audioBuffer?.duration || 0;
-			setEndTime(Math.max(Math.min(time, maxTime), startTime + minGap));
+			const clampedMinEnd = Math.min(startTime + minGap, maxTime);
+			setEndTime(Math.max(Math.min(time, maxTime), clampedMinEnd));
 		},
 		[audioBuffer, startTime],
 	);
@@ -116,7 +117,7 @@ export function useAudioTrim(): UseAudioTrimReturn {
 			const url = URL.createObjectURL(result.blob);
 			const a = document.createElement("a");
 			a.href = url;
-			a.download = `trimmed-audio-${Date.now()}.wav`;
+			a.download = `trimmed-audio-${Date.now()}.${result.extension}`;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);

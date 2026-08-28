@@ -12,6 +12,8 @@ export interface WaveformData {
 export interface TrimmedAudioResult {
 	blob: Blob;
 	duration: number;
+	mimeType: string;
+	extension: string;
 }
 
 let audioContext: AudioContext | null = null;
@@ -54,7 +56,10 @@ export function generateWaveformData(
 ): WaveformData {
 	const rawData = audioBuffer.getChannelData(0); // Get mono data or first channel
 	const peakCount = Math.min(samplesPerPixel, rawData.length);
-	const blockSize = Math.max(1, Math.floor(rawData.length / Math.max(1, peakCount)));
+	const blockSize = Math.max(
+		1,
+		Math.floor(rawData.length / Math.max(1, peakCount)),
+	);
 	const peaks: number[] = [];
 
 	for (let i = 0; i < peakCount; i++) {
@@ -97,6 +102,10 @@ export async function trimAudio(
 	const endSample = Math.floor(endTime * sampleRate);
 	const length = endSample - startSample;
 
+	if (length <= 0) {
+		throw new Error("Trim range is too small to produce audio");
+	}
+
 	// Create a new audio buffer for the trimmed audio
 	const trimmedBuffer = ctx.createBuffer(
 		audioBuffer.numberOfChannels,
@@ -111,13 +120,92 @@ export async function trimAudio(
 		targetData.set(sourceData.subarray(startSample, endSample));
 	}
 
-	// Convert to WAV blob
-	const blob = audioBufferToWav(trimmedBuffer);
-
+	// Encode to compressed format using MediaRecorder (WebM/Opus) when supported,
+	// otherwise fall back to WAV.
+	const compressed = await encodeAudioBuffer(ctx, trimmedBuffer);
 	return {
-		blob,
+		...compressed,
 		duration: endTime - startTime,
 	};
+}
+
+/**
+ * Encode an AudioBuffer to a compressed format (WebM/Opus) using MediaRecorder when supported,
+ * falling back to WAV.
+ */
+async function encodeAudioBuffer(
+	ctx: AudioContext,
+	audioBuffer: AudioBuffer,
+): Promise<{ blob: Blob; mimeType: string; extension: string }> {
+	// Pick the best supported compressed MIME type
+	const compressedTypes = [
+		{ mimeType: "audio/webm;codecs=opus", extension: "webm" },
+		{ mimeType: "audio/webm", extension: "webm" },
+		{ mimeType: "audio/ogg;codecs=opus", extension: "ogg" },
+	];
+	const preferred = compressedTypes.find((t) =>
+		MediaRecorder.isTypeSupported(t.mimeType),
+	);
+
+	if (!preferred) {
+		// Fall back to WAV if no compressed format is available
+		return {
+			blob: audioBufferToWav(audioBuffer),
+			mimeType: "audio/wav",
+			extension: "wav",
+		};
+	}
+
+	// Route the AudioBuffer through a MediaStreamDestination and record it
+	const dest = ctx.createMediaStreamDestination();
+	const source = ctx.createBufferSource();
+	source.buffer = audioBuffer;
+	source.connect(dest);
+
+	const recorder = new MediaRecorder(dest.stream, {
+		mimeType: preferred.mimeType,
+	});
+	const chunks: BlobPart[] = [];
+	recorder.ondataavailable = (e) => {
+		if (e.data.size > 0) chunks.push(e.data);
+	};
+
+	// Timeout: fall back to WAV if encoding doesn't complete in time
+	const timeoutMs = (audioBuffer.duration + 5) * 1000;
+
+	return new Promise((resolve, reject) => {
+		const timeout = setTimeout(() => {
+			recorder.stop();
+			reject(new Error("Audio encoding timed out; try again"));
+		}, timeoutMs);
+
+		recorder.onstop = () => {
+			clearTimeout(timeout);
+			resolve({
+				blob: new Blob(chunks, { type: preferred.mimeType }),
+				mimeType: preferred.mimeType,
+				extension: preferred.extension,
+			});
+		};
+		recorder.onerror = (e) => {
+			clearTimeout(timeout);
+			reject(
+				new Error(
+					`MediaRecorder error: ${(e as Event & { error?: { message?: string } }).error?.message ?? "unknown"}`,
+				),
+			);
+		};
+
+		// Resume the context in case it was auto-suspended by the browser
+		ctx
+			.resume()
+			.then(() => {
+				recorder.start();
+				source.start(0);
+				source.onended = () => recorder.stop();
+			})
+			.catch(reject);
+	});
 }
 
 /**

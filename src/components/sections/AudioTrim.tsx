@@ -19,8 +19,13 @@ function drawWaveform(
 	const width = canvas.width;
 	const height = canvas.height;
 
+	// Resolve CSS custom properties to actual color values
+	const style = getComputedStyle(canvas);
+	const mutedColor = style.getPropertyValue("--muted").trim();
+	const primaryColor = style.getPropertyValue("--primary").trim();
+
 	// Clear canvas
-	ctx.fillStyle = "hsl(var(--muted))";
+	ctx.fillStyle = `hsl(${mutedColor})`;
 	ctx.fillRect(0, 0, width, height);
 
 	// Draw waveform
@@ -29,9 +34,8 @@ function drawWaveform(
 	const barGap = Math.max(0, barWidth * 0.1);
 	const actualBarWidth = barWidth - barGap;
 
-	// Get the primary color from CSS
-	const primaryColor = "hsl(var(--primary))";
-	const dimmedColor = "hsl(var(--primary) / 0.3)";
+	const activeColor = `hsl(${primaryColor})`;
+	const dimmedColor = `hsl(${primaryColor} / 0.3)`;
 
 	for (let i = 0; i < peaks.length; i++) {
 		const peak = peaks[i];
@@ -42,7 +46,7 @@ function drawWaveform(
 		const barTime = (i / peaks.length) * duration;
 		const isInTrimRange = barTime >= startTime && barTime <= endTime;
 
-		ctx.fillStyle = isInTrimRange ? primaryColor : dimmedColor;
+		ctx.fillStyle = isInTrimRange ? activeColor : dimmedColor;
 		ctx.fillRect(x, centerY - barHeight / 2, actualBarWidth, barHeight);
 	}
 }
@@ -70,33 +74,34 @@ export function AudioTrim(): JSX.Element {
 	const waveformContainerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	// Initialize canvas size with ResizeObserver
+	// Refs to hold latest values for use inside the ResizeObserver closure
+	const waveformDataRef = useRef(waveformData);
+	const startTimeRef = useRef(startTime);
+	const endTimeRef = useRef(endTime);
+	waveformDataRef.current = waveformData;
+	startTimeRef.current = startTime;
+	endTimeRef.current = endTime;
+
+	// Initialize canvas size with ResizeObserver - set up once, independent of trim state
 	useEffect(() => {
 		if (!canvasRef.current || !waveformContainerRef.current) return;
 
 		const canvas = canvasRef.current;
 		const container = waveformContainerRef.current;
 
-		// Initial canvas sizing
-		const resizeCanvas = (): void => {
+		const resizeObserver = new ResizeObserver(() => {
 			canvas.width = container.offsetWidth;
 			canvas.height = 150;
-			if (waveformData) {
+			// Re-read waveformData, startTime, endTime from refs to avoid stale closure
+			if (waveformDataRef.current) {
 				drawWaveform(
 					canvas,
-					waveformData.peaks,
-					startTime,
-					endTime,
-					waveformData.duration,
+					waveformDataRef.current.peaks,
+					startTimeRef.current,
+					endTimeRef.current,
+					waveformDataRef.current.duration,
 				);
 			}
-		};
-
-		resizeCanvas();
-
-		// Use ResizeObserver to handle container resizes
-		const resizeObserver = new ResizeObserver(() => {
-			resizeCanvas();
 		});
 
 		resizeObserver.observe(container);
@@ -104,6 +109,26 @@ export function AudioTrim(): JSX.Element {
 		return () => {
 			resizeObserver.disconnect();
 		};
+	}, []);
+
+	// Redraw waveform whenever trim state or waveform data changes
+	useEffect(() => {
+		if (!canvasRef.current || !waveformContainerRef.current) return;
+
+		const canvas = canvasRef.current;
+		const container = waveformContainerRef.current;
+
+		canvas.width = container.offsetWidth;
+		canvas.height = 150;
+		if (waveformData) {
+			drawWaveform(
+				canvas,
+				waveformData.peaks,
+				startTime,
+				endTime,
+				waveformData.duration,
+			);
+		}
 	}, [waveformData, startTime, endTime]);
 
 	const handleFileSelect = (file: File): void => {
