@@ -122,6 +122,48 @@ export function AudioTrim(): JSX.Element {
 		}
 	};
 
+	const handleStartKeyDown = (e: KeyboardEvent): void => {
+		if (!waveformData) return;
+		const step = waveformData.duration / 100; // 1% of total duration
+		switch (e.key) {
+			case "ArrowLeft":
+				e.preventDefault();
+				setTrimStart(Math.max(0, startTime - step));
+				break;
+			case "ArrowRight":
+				e.preventDefault();
+				setTrimStart(Math.min(endTime - 0.1, startTime + step));
+				break;
+			case "Home":
+				e.preventDefault();
+				setTrimStart(0);
+				break;
+			default:
+				break;
+		}
+	};
+
+	const handleEndKeyDown = (e: KeyboardEvent): void => {
+		if (!waveformData) return;
+		const step = waveformData.duration / 100; // 1% of total duration
+		switch (e.key) {
+			case "ArrowLeft":
+				e.preventDefault();
+				setTrimEnd(Math.max(startTime + 0.1, endTime - step));
+				break;
+			case "ArrowRight":
+				e.preventDefault();
+				setTrimEnd(Math.min(waveformData.duration, endTime + step));
+				break;
+			case "End":
+				e.preventDefault();
+				setTrimEnd(waveformData.duration);
+				break;
+			default:
+				break;
+		}
+	};
+
 	const duration = audioBuffer?.duration || 0;
 	const trimmedDuration = endTime - startTime;
 	const canDownload = audioBuffer && trimmedDuration > 0;
@@ -210,6 +252,7 @@ export function AudioTrim(): JSX.Element {
 									left: `${(startTime / waveformData.duration) * 100}%`,
 								}}
 								onMouseDown={() => handleMouseDown("start")}
+								onKeyDown={handleStartKeyDown}
 								role="slider"
 								aria-label={`Start time: ${formatTime(startTime)}`}
 								aria-valuenow={startTime}
@@ -225,6 +268,7 @@ export function AudioTrim(): JSX.Element {
 									right: `${100 - (endTime / waveformData.duration) * 100}%`,
 								}}
 								onMouseDown={() => handleMouseDown("end")}
+								onKeyDown={handleEndKeyDown}
 								role="slider"
 								aria-label={`End time: ${formatTime(endTime)}`}
 								aria-valuenow={endTime}

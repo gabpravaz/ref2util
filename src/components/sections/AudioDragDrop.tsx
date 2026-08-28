@@ -89,7 +89,7 @@ export function AudioDragDrop({
 					transition-all duration-200 w-full
 					${
 						isDragging
-							? "drag-over"
+							? "border-primary bg-primary/10 cursor-copy"
 							: disabled
 								? "bg-muted/50 border-border/50 cursor-not-allowed opacity-60"
 								: "bg-muted border-border cursor-pointer hover:border-primary hover:bg-muted/80"

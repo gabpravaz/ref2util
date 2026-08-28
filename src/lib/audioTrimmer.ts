@@ -14,29 +14,31 @@ export interface TrimmedAudioResult {
 	duration: number;
 }
 
-const AUDIO_CONTEXT = (() => {
-	if (typeof window !== "undefined") {
-		const AudioContextConstructor = (
-			window.AudioContext ||
-			((window as unknown) as Record<string, unknown>).webkitAudioContext
-		) as typeof AudioContext;
-		if (AudioContextConstructor) {
-			return new AudioContextConstructor();
+let audioContext: AudioContext | null = null;
+
+function getAudioContext(): AudioContext {
+	if (!audioContext) {
+		if (typeof window === "undefined") {
+			throw new Error("Web Audio API is not available");
 		}
+		const AudioContextConstructor = (window.AudioContext ||
+			(window as unknown as Record<string, unknown>)
+				.webkitAudioContext) as typeof AudioContext;
+		if (!AudioContextConstructor) {
+			throw new Error("Web Audio API is not supported in this browser");
+		}
+		audioContext = new AudioContextConstructor();
 	}
-	return null;
-})();
+	return audioContext;
+}
 
 /**
  * Load and decode an audio file into PCM data.
  */
 export async function loadAudioFile(file: File): Promise<AudioBuffer> {
-	if (!AUDIO_CONTEXT) {
-		throw new Error("Web Audio API is not supported in this browser");
-	}
-
+	const ctx = getAudioContext();
 	const arrayBuffer = await file.arrayBuffer();
-	return AUDIO_CONTEXT.decodeAudioData(arrayBuffer);
+	return ctx.decodeAudioData(arrayBuffer);
 }
 
 /**
@@ -76,9 +78,7 @@ export async function trimAudio(
 	startTime: number,
 	endTime: number,
 ): Promise<TrimmedAudioResult> {
-	if (!AUDIO_CONTEXT) {
-		throw new Error("Web Audio API is not supported in this browser");
-	}
+	const ctx = getAudioContext();
 
 	// Validate times
 	if (startTime < 0 || endTime > audioBuffer.duration || startTime >= endTime) {
@@ -91,7 +91,7 @@ export async function trimAudio(
 	const length = endSample - startSample;
 
 	// Create a new audio buffer for the trimmed audio
-	const trimmedBuffer = AUDIO_CONTEXT.createBuffer(
+	const trimmedBuffer = ctx.createBuffer(
 		audioBuffer.numberOfChannels,
 		length,
 		sampleRate,
