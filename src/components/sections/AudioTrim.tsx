@@ -70,24 +70,40 @@ export function AudioTrim(): JSX.Element {
 	const waveformContainerRef = useRef<HTMLDivElement>(null);
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	// Draw waveform when waveformData or trim times change
+	// Initialize canvas size with ResizeObserver
 	useEffect(() => {
-		if (!canvasRef.current || !waveformData) return;
+		if (!canvasRef.current || !waveformContainerRef.current) return;
 
-		// Set canvas size to match container
+		const canvas = canvasRef.current;
 		const container = waveformContainerRef.current;
-		if (container) {
-			canvasRef.current.width = container.offsetWidth;
-			canvasRef.current.height = 150;
-		}
 
-		drawWaveform(
-			canvasRef.current,
-			waveformData.peaks,
-			startTime,
-			endTime,
-			waveformData.duration,
-		);
+		// Initial canvas sizing
+		const resizeCanvas = (): void => {
+			canvas.width = container.offsetWidth;
+			canvas.height = 150;
+			if (waveformData) {
+				drawWaveform(
+					canvas,
+					waveformData.peaks,
+					startTime,
+					endTime,
+					waveformData.duration,
+				);
+			}
+		};
+
+		resizeCanvas();
+
+		// Use ResizeObserver to handle container resizes
+		const resizeObserver = new ResizeObserver(() => {
+			resizeCanvas();
+		});
+
+		resizeObserver.observe(container);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
 	}, [waveformData, startTime, endTime]);
 
 	const handleFileSelect = (file: File): void => {
@@ -184,7 +200,7 @@ export function AudioTrim(): JSX.Element {
 					<AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
 					<div className="flex-1">
 						<h3 className="text-sm font-medium text-destructive">
-							Error loading audio
+							An error occurred
 						</h3>
 						<p className="text-sm text-destructive/80 mt-1">{error}</p>
 						<button

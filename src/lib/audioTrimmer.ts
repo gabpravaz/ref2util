@@ -17,18 +17,21 @@ export interface TrimmedAudioResult {
 let audioContext: AudioContext | null = null;
 
 function getAudioContext(): AudioContext {
-	if (!audioContext) {
-		if (typeof window === "undefined") {
-			throw new Error("Web Audio API is not available");
-		}
-		const AudioContextConstructor = (window.AudioContext ||
-			(window as unknown as Record<string, unknown>)
-				.webkitAudioContext) as typeof AudioContext;
-		if (!AudioContextConstructor) {
-			throw new Error("Web Audio API is not supported in this browser");
-		}
-		audioContext = new AudioContextConstructor();
+	// Check if context exists and is not closed
+	if (audioContext && audioContext.state !== "closed") {
+		return audioContext;
 	}
+
+	if (typeof window === "undefined") {
+		throw new Error("Web Audio API is not available");
+	}
+	const AudioContextConstructor = (window.AudioContext ||
+		(window as unknown as Record<string, unknown>)
+			.webkitAudioContext) as typeof AudioContext;
+	if (!AudioContextConstructor) {
+		throw new Error("Web Audio API is not supported in this browser");
+	}
+	audioContext = new AudioContextConstructor();
 	return audioContext;
 }
 

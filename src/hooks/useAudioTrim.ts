@@ -85,15 +85,17 @@ export function useAudioTrim(): UseAudioTrimReturn {
 
 	const setTrimStartCallback = useCallback(
 		(time: number): void => {
-			setStartTime(Math.max(0, Math.min(time, endTime)));
+			const minGap = 0.1; // Minimum 100ms gap between start and end
+			setStartTime(Math.max(0, Math.min(time, endTime - minGap)));
 		},
 		[endTime],
 	);
 
 	const setTrimEndCallback = useCallback(
 		(time: number): void => {
+			const minGap = 0.1; // Minimum 100ms gap between start and end
 			const maxTime = audioBuffer?.duration || 0;
-			setEndTime(Math.max(Math.min(time, maxTime), startTime));
+			setEndTime(Math.max(Math.min(time, maxTime), startTime + minGap));
 		},
 		[audioBuffer, startTime],
 	);
