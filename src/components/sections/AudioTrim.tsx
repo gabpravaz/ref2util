@@ -135,7 +135,8 @@ export function AudioTrim(): JSX.Element {
 		loadAudio(file);
 	};
 
-	const handleMouseDown = (type: "start" | "end") => {
+	const handleMouseDown = (type: "start" | "end", e?: MouseEvent) => {
+		e?.preventDefault();
 		if (type === "start") {
 			setIsDraggingStart(true);
 		} else {
@@ -292,7 +293,7 @@ export function AudioTrim(): JSX.Element {
 								style={{
 									left: `${(startTime / waveformData.duration) * 100}%`,
 								}}
-								onMouseDown={() => handleMouseDown("start")}
+								onMouseDown={(event) => handleMouseDown("start", event)}
 								onKeyDown={handleStartKeyDown}
 								role="slider"
 								aria-label={`Start time: ${formatTime(startTime)}`}
@@ -308,7 +309,7 @@ export function AudioTrim(): JSX.Element {
 								style={{
 									right: `${100 - (endTime / waveformData.duration) * 100}%`,
 								}}
-								onMouseDown={() => handleMouseDown("end")}
+								onMouseDown={(event) => handleMouseDown("end", event)}
 								onKeyDown={handleEndKeyDown}
 								role="slider"
 								aria-label={`End time: ${formatTime(endTime)}`}
